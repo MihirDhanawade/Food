@@ -5,8 +5,14 @@ import { useEffect } from "react";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import "../global.css";
 
+SplashScreen.preventAutoHideAsync();
+
 export default function RootLayout() {
-  const { isLoading, fetchAuthenticateduser } = useAuthStore();
+  const isLoading = useAuthStore((state) => state.isLoading);
+  const hasHydrated = useAuthStore((state) => state.hasHydrated);
+  const fetchAuthenticateduser = useAuthStore(
+    (state) => state.fetchAuthenticateduser,
+  );
 
   const [fontsLoaded, error] = useFonts({
     "Quicksand-Bold": require("@/assets/fonts/Quicksand-Bold.ttf"),
@@ -18,14 +24,18 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (error) throw error;
-    if (fontsLoaded && !isLoading) SplashScreen.hideAsync();
-  }, [fontsLoaded, error, isLoading]);
+    if (fontsLoaded && hasHydrated && !isLoading) SplashScreen.hideAsync();
+  }, [fontsLoaded, error, hasHydrated, isLoading]);
 
   useEffect(() => {
-    fetchAuthenticateduser();
-  }, []);
+    if (hasHydrated) {
+      // Pass true so isLoading is properly set to true during the check,
+      // preventing the auth layout from rendering before we know the auth state.
+      fetchAuthenticateduser(true);
+    }
+  }, [hasHydrated, fetchAuthenticateduser]);
 
-  if (!fontsLoaded || isLoading) return null;
+  if (!fontsLoaded || !hasHydrated || isLoading) return null;
 
   return (
     <SafeAreaProvider>

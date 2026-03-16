@@ -1,5 +1,6 @@
 import { images } from "@/constants";
 import useAuthStore from "@/store/auth.store";
+
 import { Redirect, Slot } from "expo-router";
 import React from "react";
 import {
@@ -13,8 +14,13 @@ import {
 } from "react-native";
 
 const AuthLayout = () => {
+  // No need for local `hydrated` state here.
+  // RootLayout already returns null until hasHydrated AND !isLoading,
+  // so by the time AuthLayout mounts, the store is fully ready.
   const { isAuthenticated } = useAuthStore();
+
   if (isAuthenticated) return <Redirect href="/" />;
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}

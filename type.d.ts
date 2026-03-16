@@ -1,6 +1,7 @@
 import { Models } from "react-native-appwrite";
 
 export interface MenuItem extends Models.Document {
+  categories: any;
   name: string;
   price: number;
   image_url: string;
